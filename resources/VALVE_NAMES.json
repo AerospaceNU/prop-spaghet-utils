@@ -1,14 +1,17 @@
 [
   {
     "valves": [
-     "O_Press",
-     "O_Purge",
-     "F_Press",
-     "F_Purge",
-     "O_Flow",
-     "O_Vent",
-     "F_Flow",
-     "F_Vent"
+     "loxVent",
+     "kerVent",
+     "loxDrip",
+     "kerDrip",
+     "loxPressurant",
+     "kerPressurant",
+     "loxFlow",
+     "kerFlow",
+     "kerOrifice",
+     "loxPurge",
+     "kerPurge"
     ]
   }
 ]

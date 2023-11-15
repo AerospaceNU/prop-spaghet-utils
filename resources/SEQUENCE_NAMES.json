@@ -2,15 +2,8 @@
   {
     "sequences": [
      "NONE",
-     "F_FLOW_05s",
-     "F_FLOW_10s",
-     "F_FLOW_20s",
-     "F_FLOW_30s",
-     "O_FLOW_05s",
-     "O_FLOW_10s",
-     "O_FLOW_20s",
-     "O_FLOW_30s",
-     "KER_VENT_FLUTTER_x2"
+     "ALL_FLOW",
+     "KERO_FLOW"
     ]
   }
 ]

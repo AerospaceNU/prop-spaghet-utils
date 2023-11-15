@@ -3,177 +3,53 @@
     "name": "WATER_FLOW",
     "batches": [
       {
-        "name": "F_FILL",
+
+        
+        "name": "ALL_STATES",
         "commands": [
           {
-            "name": "F_FILL",
-            "value": "F_FILL"
+            "name": "ONLINE_SAFE_D",
+            "value": "ONLINE_SAFE_D"
           },
           {
-            "name": "F_POST_FILL",
-            "value": "F_POST_FILL"
-          }
-        ]
-      },
-      {
-        "name": "F_PRESSFLOW",
-        "commands": [
-          {
-            "name": "ONLINE_SAFE",
-            "value": "ONLINE_SAFE"
+            "name": "KERO_FILL",
+            "value": "KERO_FILL"
           },
           {
-            "name": "F_PRE_PRESS",
-            "value": "F_PRE_PRESS"
+            "name": "KERO_FILLED",
+            "value": "KERO_FILLED"
           },
           {
-            "name": "F_PRESS",
-            "value": "F_PRESS"
+            "name": "LOX_FILL",
+            "value": "LOX_FILL"
           },
           {
-            "name": "F_FLOW",
-            "value": "F_FLOW"
+            "name": "LOX_FILLED",
+            "value": "LOX_FILLED"
           },
           {
-            "name": "F_POST_FLOW",
-            "value": "F_POST_FLOW"
-          }
-        ]
-      },
-      {
-        "name": "O_PRESSFLOW",
-        "commands": [
-          {
-            "name": "ONLINE_SAFE",
-            "value": "ONLINE_SAFE"
+            "name": "ALL_READY_TO_PRESSURIZE",
+            "value": "ALL_READY_TO_PRESSURIZE"
           },
           {
-            "name": "O_PRE_PRESS",
-            "value": "O_PRE_PRESS"
+            "name": "ALL_PRESSURIZING",
+            "value": "ALL_PRESSURIZING"
           },
           {
-            "name": "O_PRESS",
-            "value": "O_PRESS"
+            "name": "ALL_FLOW_closed",
+            "value": "ALL_FLOW_closed"
           },
           {
-            "name": "O_FLOW",
-            "value": "O_FLOW"
+            "name": "ALL_FLOW_open",
+            "value": "ALL_FLOW_open"
           },
           {
-            "name": "O_POST_FLOW",
-            "value": "O_POST_FLOW"
-          }
-        ]
-      },
-      {
-        "name": "PURGE",
-        "commands": [
-          {
-            "name": "ONLINE_SAFE",
-            "value": "ONLINE_SAFE"
+            "name": "KERO_FLOW_closed",
+            "value": "KERO_FLOW_closed"
           },
           {
-            "name": "O_ENGINE_PURGE",
-            "value": "O_ENGINE_PURGE"
-          },
-          {
-            "name": "F_ENGINE_PURGE",
-            "value": "F_ENGINE_PURGE"
-          },
-          {
-            "name": "ALL_ENGINE_PURGE",
-            "value": "ALL_ENGINE_PURGE"
-          },
-          {
-            "name": "F_TANK_PURGE",
-            "value": "F_TANK_PURGE"
-          },
-          {
-            "name": "O_VENT",
-            "value": "O_VENT"
-          },
-          {
-            "name": "F_VENT",
-            "value": "F_VENT"
-          },
-          {
-            "name": "ALL_VENT",
-            "value": "ALL_VENT"
-          }
-        ]
-      },
-      {
-        "name": "ALL_PRESSFLOW",
-        "commands": [
-          {
-            "name": "ONLINE_SAFE",
-            "value": "ONLINE_SAFE"
-          },
-          {
-            "name": "ALL_PRE_PRESS",
-            "value": "ALL_PRE_PRESS"
-          },
-          {
-            "name": "ALL_PRESS",
-            "value": "ALL_PRESS"
-          },
-          {
-            "name": "ALL_FLOW",
-            "value": "ALL_FLOW"
-          },
-          {
-            "name": "ALL_POST_FLOW",
-            "value": "ALL_POST_FLOW"
-          }
-        ]
-      },
-      {
-        "name": "F_PRESSFLOW",
-        "commands": [
-          {
-            "name": "ONLINE_SAFE",
-            "value": "ONLINE_SAFE"
-          },
-          {
-            "name": "F_PRE_PRESS",
-            "value": "F_PRE_PRESS"
-          },
-          {
-            "name": "F_PRESS",
-            "value": "F_PRESS"
-          },
-          {
-            "name": "F_FLOW",
-            "value": "F_FLOW"
-          },
-          {
-            "name": "F_POST_FLOW",
-            "value": "F_POST_FLOW"
-          }
-        ]
-      },
-      {
-        "name": "O_PRESSFLOW",
-        "commands": [
-          {
-            "name": "ONLINE_SAFE",
-            "value": "ONLINE_SAFE"
-          },
-          {
-            "name": "O_PRE_PRESS",
-            "value": "O_PRE_PRESS"
-          },
-          {
-            "name": "O_PRESS",
-            "value": "F_PRO_PRESSESS"
-          },
-          {
-            "name": "O_FLOW",
-            "value": "O_FLOW"
-          },
-          {
-            "name": "O_POST_FLOW",
-            "value": "O_POST_FLOW"
+            "name": "KERO_FLOW_open",
+            "value": "KERO_FLOW_open"
           }
         ]
       }

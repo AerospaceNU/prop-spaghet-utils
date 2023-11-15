@@ -3,10 +3,10 @@
 //these are the main things you need to update here at the top
 
 //where the json is coming from (pi or local testing)
-//const socket = new WebSocket('ws://localhost:9002/ws');
+const socket = new WebSocket('ws://localhost:9002/ws');
 //const socket = new WebSocket('ws://169.254.146.189:9002');
 //const socket = new WebSocket('ws://spaghetti-pi.local:9002/ws');
-const socket = new WebSocket('ws://ecs-sim-pi.local:9002/ws');
+//const socket = new WebSocket('ws://ecs-sim-pi.local:9002/ws');
 
 //where your states/batches are defined
 const stateSetJSON = "../resources/STATE_SETS.json";
@@ -243,7 +243,7 @@ sequencerCheckbox.addEventListener("change", function () {
 const sensorContainer = document.getElementById('sensorContainer');
 const errorDiv = document.getElementById('error');
 let lastUpdateTime = 0;
-const throttleInterval = 500;
+const throttleInterval = 50;
 
 function createSensorDiv(sensorName, sensorValue, unit) {
     const sensorDiv = document.createElement('div');
@@ -283,6 +283,7 @@ function updateValveStates(data){
     if(enableOverrideCheckboxValue === "enableOverrideChecked"){ //don't change while in override
         return;
     }
+    
     for(v of valveNames) {
         let valveReading = data.data.valves[v].valveState;
         document.getElementById(v).value = valveReading;
@@ -345,9 +346,9 @@ sendOverrideCommand = function () {
 }
 
 function forceSetOnlineSafe() {
-    var command = { command: "SET_STATE", newState: "ONLINE_SAFE" };
+    var command = { command: "SET_STATE", newState: "ONLINE_SAFE_D" };
     socket.send(JSON.stringify(command));
-    stateHTML.innerHTML = "&nbsp;Last Sent: ONLINE_SAFE";
+    stateHTML.innerHTML = "&nbsp;Last Sent: ONLINE_SAFE_D";
 }
 
 
@@ -727,62 +728,77 @@ function displayTestStandState(currentState) {
     testStandState.innerHTML = "Current State:&nbsp;" + currentState;
 }
 
+var lastMessage = document.getElementById("lastMessage");
+function displayLastMessage(message) {
+    lastMessage.innerHTML = "Last Message:&nbsp;" + message;
+}
+
 // Modify processData function to initialize and update the chart
 function processData(data) {
-    const currentTime = new Date().getTime();
-    if (currentTime - lastUpdateTime < throttleInterval) {
-        return;
-    }
-    sensorContainer.innerHTML = '';
-
-    displaySensors(data.data.loadCellSensors, 'Load Cell Sensor');
-    displaySensors(data.data.pressureSensors, 'Pressure Sensor');
-    displaySensors(data.data.tempSensors, 'Temperature Sensor');
-
-    displayPneumaticSystemPressure(data.data.pressureSensors.Pneumatic);
-    displayTestStandState(data.currentState);
-
-    if (chartData_1.length === 0) {
-        initChart_1(data.data.pressureSensors);
-    } else {
-        if (pressureCheckboxValue === "pressureSensorsChecked") {
-            updateChart_1(data.data.pressureSensors);
+    if (data.command == 'DATA') {
+        const currentTime = new Date().getTime();
+        if (currentTime - lastUpdateTime < throttleInterval) {
+            return;
         }
-    }
+        sensorContainer.innerHTML = '';
 
-    if (chartData_2.length === 0) {
-        initChart_2(data.data.tempSensors);
-    } else {
-        if (tempCheckboxValue === "tempSensorsChecked") {
-            updateChart_2(data.data.tempSensors);
-        }
-    }
+        displaySensors(data.data.loadCellSensors, 'Load Cell Sensor');
+        displaySensors(data.data.pressureSensors, 'Pressure Sensor');
+        displaySensors(data.data.tempSensors, 'Temperature Sensor');
 
-    // TODO: put this part back if you want to use load cells again, but they're on a separate arduino for now
-    //note that the checkbox names were not changed to reflect pressure sensors instead of load cell sensors
-    /*if (chartData_3.length === 0) {
-        initChart_3(data.data.loadCellSensors);
-    } else {
-        if (loadCheckboxValue === "loadSensorsChecked") {
-            updateChart_3(data.data.loadCellSensors);
-        }
-    }*/
-    if (chartData_3.length === 0) {
-        initChart_3(data.data.pressureSensors);
-    } else {
-        if (loadCheckboxValue === "loadSensorsChecked") {
-            updateChart_3(data.data.pressureSensors);
-        }
-    }
-    ///
+        // displayPneumaticSystemPressure(data.data.pressureSensors.Pneumatic);
+        // displayTestStandState(data.currentState);
 
-    if (chartData_4.length === 0) {
-        initChart_4(data.data.pressureSensors);
-    } else {
-        if (pressureCheckbox2Value === "pressureSensors2Checked") {
-            updateChart_4(data.data.pressureSensors);
+        if (chartData_1.length === 0) {
+            initChart_1(data.data.pressureSensors);
+        } else {
+            if (pressureCheckboxValue === "pressureSensorsChecked") {
+                updateChart_1(data.data.pressureSensors);
+            }
         }
-    }
 
-    lastUpdateTime = currentTime;
+        if (chartData_2.length === 0) {
+            initChart_2(data.data.tempSensors);
+        } else {
+            if (tempCheckboxValue === "tempSensorsChecked") {
+                updateChart_2(data.data.tempSensors);
+            }
+        }
+
+        // TODO: put this part back if you want to use load cells again, but they're on a separate arduino for now
+        //note that the checkbox names were not changed to reflect pressure sensors instead of load cell sensors
+        /*if (chartData_3.length === 0) {
+            initChart_3(data.data.loadCellSensors);
+        } else {
+            if (loadCheckboxValue === "loadSensorsChecked") {
+                updateChart_3(data.data.loadCellSensors);
+            }
+        }*/
+        if (chartData_3.length === 0) {
+            initChart_3(data.data.pressureSensors);
+        } else {
+            if (loadCheckboxValue === "loadSensorsChecked") {
+                updateChart_3(data.data.pressureSensors);
+            }
+        }
+        ///
+
+        if (chartData_4.length === 0) {
+            initChart_4(data.data.pressureSensors);
+        } else {
+            if (pressureCheckbox2Value === "pressureSensors2Checked") {
+                updateChart_4(data.data.pressureSensors);
+            }
+        }
+
+        lastUpdateTime = currentTime;
+    } else if (data.command == 'MESSAGE') {
+        displayLastMessage(data.statement);
+    } else if (data.command == 'STATE_TRANSITION') {
+        displayTestStandState(data.newState + " at time " + data.newStand);
+    } else if (data.command == 'REDLINE_REPORT') {
+        // todo: implement redline report
+    } else {
+        // else here
+    }
 }
