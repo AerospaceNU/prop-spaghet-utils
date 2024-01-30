@@ -5,13 +5,11 @@ mini propulsion test stand util code
 
 1) cd into the directory where you clone/downloaded this code
 
-2) run `python(3) -m http.server`
+2) run `python(3) run_gui.py`
 
 (use python or python3 as appropriate for your configuration)
 
-3) go to `http://localhost:8000/pi-value-reader.html` in a browser, ideally in a new window/incognito tab
-
-4) ensure you are connected to the pi, if you are not or the ecs is not running, you will see an error message about websockets.
+3) ensure you are connected to the pi, if you are not or the ecs is not running, you will see an error message about websockets.
 
 ## Running the logger
 
