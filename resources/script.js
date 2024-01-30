@@ -243,7 +243,7 @@ sequencerCheckbox.addEventListener("change", function () {
 const sensorContainer = document.getElementById('sensorContainer');
 const errorDiv = document.getElementById('error');
 let lastUpdateTime = 0;
-const throttleInterval = 500;
+const throttleInterval = 50;
 
 function createSensorDiv(sensorName, sensorValue, unit) {
     const sensorDiv = document.createElement('div');
