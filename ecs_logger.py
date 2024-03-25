@@ -125,10 +125,10 @@ class LoggerApp:
 
             other_data = {
                 'timestamp': json_data['timeStamp'],
-                'currentState': json_data['currentState'],
-                'engineSequence': json_data['engineSequence'],
-                'sequenceProgress': json_data['sequenceProgress'],
-                'recordedAbort': json_data['recordedAbort']
+                # 'currentState': json_data['currentState'],
+                # 'engineSequence': json_data['engineSequence'],
+                # 'sequenceProgress': json_data['sequenceProgress'],
+                # 'recordedAbort': json_data['recordedAbort']
             }
 
             row_data = {**load_cells, **pressure_sensors, **temp_sensors, **valves, **other_data}
