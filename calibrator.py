@@ -51,6 +51,7 @@ EXAMPLE_DATA_JSON = """{
     "timeStamp": 1658422515934
 }
 """
+ERRORLESS_INFO = "Errors will appear here"
 
 class LoggerApp:
     def __init__(self, master):
@@ -66,7 +67,9 @@ class LoggerApp:
         self.address_var = StringVar(value='ecs-sim-pi.local:9002')
         self.address_entry = Entry(master, textvariable=self.address_var)
 
-        self.file_count_label = Label(master, text=EXAMPLE_DATA_JSON, justify="left")
+        self.specified_json = StringVar(value=EXAMPLE_DATA_JSON)
+        self.specified_json_label = Label(master, textvariable=self.specified_json, justify="left")
+        self.info_bar = Label(master, text=ERRORLESS_INFO, fg="black")
 
         self.blankspace = Label(master, text="")
         self.blankspace_2 = Label(master, text="")
@@ -85,17 +88,29 @@ class LoggerApp:
         # self.choose_directory_button.grid(row=3, column=0)
         self.address_label.grid(row=1, column=0, sticky="N")
         self.address_entry.grid(row=1, column=1, columnspan=2, sticky="N")
-        self.file_count_label.grid(row=1, column=3, columnspan=2)
+        self.specified_json_label.grid(row=1, column=3, columnspan=2)
+        self.info_bar.grid(row=2, column=0)
 
 
         self.last_gui_update_time = 0
-
+        self.cur_data_json = json.loads(EXAMPLE_DATA_JSON)
         self.main_loop()
 
     def main_loop(self):
-        print(self.address_var.get())
-        self.last_gui_update_time = time.time()
-        
+        user_str = self.address_var.get()
+
+        json_to_be_displayed = self.cur_data_json # set to default og json if user input doesn't work
+        try:
+            json_to_be_displayed = eval(f"self.cur_data_json{user_str}")
+            self.info_bar.config(fg="black", text=ERRORLESS_INFO)
+        except SyntaxError as e:
+            self.info_bar.config(fg="red", text=repr(e))
+        except KeyError as e:
+            self.info_bar.config(fg="red", text=repr(e))
+        except Exception as e:
+            self.info_bar.config(fg="red", text=repr(e))
+
+        self.specified_json.set(json.dumps(json_to_be_displayed, indent=4))
         self.master.after(1000, self.main_loop)
 
     # used for toggling close button on/off
@@ -195,6 +210,6 @@ class LoggerApp:
 
 if __name__ == "__main__":
     root = Tk()
-    root.geometry("600x400")
+    root.geometry("1000x700")
     app = LoggerApp(root)
     root.mainloop()
