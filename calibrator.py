@@ -58,11 +58,6 @@ class LoggerApp:
         self.master = master
         master.title("AeroNU Propulsion Logger")
 
-        # self.start_button = Button(master, text="Start Logging", command=self.start_logging)
-        # self.stop_button = Button(master, text="Stop Logging", command=self.stop_logging, state='disabled')
-        # self.new_file_button = Button(master, text="Split New File", command=self.new_file, state='disabled')
-        # self.choose_directory_button = Button(master, text="Choose Directory", command=self.choose_directory)
-
         self.address_label = Label(master, text="Address")
         self.address_var = StringVar(value='ecs-sim-pi.local:9002')
         self.address_entry = Entry(master, textvariable=self.address_var)
@@ -81,11 +76,6 @@ class LoggerApp:
         self.blankspace_2.grid(row=2,column=0,columnspan=3)
         self.blankspace_3.grid(row=6,column=0,columnspan=3)
         self.blankspace_4.grid(row=4, column=0, columnspan=3)
-
-        # self.start_button.grid(row=5, column=0)
-        # self.stop_button.grid(row=5, column=2)
-        # self.new_file_button.grid(row=5, column=4)
-        # self.choose_directory_button.grid(row=3, column=0)
         self.address_label.grid(row=1, column=0, sticky="N")
         self.address_entry.grid(row=1, column=1, columnspan=2, sticky="N")
         self.specified_json_label.grid(row=1, column=3, columnspan=2)
@@ -95,6 +85,7 @@ class LoggerApp:
         self.last_gui_update_time = 0
         self.cur_data_json = json.loads(EXAMPLE_DATA_JSON)
         self.main_loop()
+
 
     def main_loop(self):
         user_str = self.address_var.get()
@@ -113,9 +104,6 @@ class LoggerApp:
         self.specified_json.set(json.dumps(json_to_be_displayed, indent=4))
         self.master.after(1000, self.main_loop)
 
-    # used for toggling close button on/off
-    # def disable_close_button(self):
-    #     pass
 
     # def enable_close_button(self):
     #     self.master.destroy()
