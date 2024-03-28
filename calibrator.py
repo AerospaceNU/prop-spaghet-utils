@@ -56,55 +56,50 @@ class LoggerApp:
         self.master = mastash
         self.master.title("AeroNU Propulsion Logger")
 
+        # left frame, for user controls
         left_frame  = Frame(self.master,  width=200,  height=  400)
         left_frame.grid(row=0, column=0, sticky="N")
 
         self.address_label = Label(left_frame, text="Address")
         self.address_var = StringVar(value='')
-        self.address_entry = Entry(left_frame, textvariable=self.address_var)
-
-        right_frame = Frame(self.master,  width=200,  height= 400)
-        right_frame.grid(row=0, column=1, sticky='news')
-
-        
-        canvas = Canvas(right_frame, bg="gray94", width=200,  height=400)
-        
-        self.specified_json = StringVar(value=EXAMPLE_DATA_JSON)
-        self.specified_json_label = Label(canvas, textvariable=self.specified_json, justify="left")
-        canvas.create_window(0, 0, anchor='nw', window=self.specified_json_label, height=400)
-
-        scrolly = Scrollbar(right_frame, orient='vertical', command=canvas.yview)
-        scrolly.grid(row=0, column=1, sticky='ns')
-        canvas.configure(scrollregion=canvas.bbox('all'), yscrollcommand=scrolly.set)
-
-        canvas.grid(row=0, column=0)
-
-
-        
-
+        self.address_entry = Entry(left_frame, textvariable=self.address_var, width=100)
         self.info_bar = Label(left_frame, text=ERRORLESS_INFO, fg="black")
 
+        self.address_label.grid(row=1, column=0, sticky="N")
+        self.address_entry.grid(row=1, column=1, columnspan=2, sticky="N")
+        self.info_bar.grid(row=2, column=0)
+
+        # make layout a little nicer
         self.blankspace = Label(left_frame, text="")
         self.blankspace_2 = Label(left_frame, text="")
         self.blankspace_3 = Label(left_frame, text="")
         self.blankspace_4 = Label(left_frame, text="")
-
-        # make layout a little nicer
         self.blankspace.grid(row=0,column=0,columnspan=3)
         self.blankspace_2.grid(row=2,column=0,columnspan=3)
         self.blankspace_3.grid(row=6,column=0,columnspan=3)
         self.blankspace_4.grid(row=4, column=0, columnspan=3)
-        self.address_label.grid(row=1, column=0, sticky="N")
-        # self.address_entry.grid(row=1, column=1, columnspan=2, sticky="N")
-        # self.specified_json_label.grid(row=1, column=3, columnspan=2)
-        self.info_bar.grid(row=2, column=0)
+
+
+
+
+        # right frame, for json display
+        right_frame = Frame(mastash,  width=400,  height= 400)
+        right_frame.grid(row=0, column=1, sticky='news')
+
+        self.canvas = Canvas(right_frame, bg="gray94", width=400,  height=700)
+        scrolly = Scrollbar(right_frame, orient='vertical', command=self.canvas.yview)
+        scrolly.grid(row=0, column=1, sticky='ns')
+
+        self.canvas.configure(yscrollcommand=scrolly.set)
+        self.canvas.grid(row=0, column=0)
+
 
 
         self.last_gui_update_time = 0
         self.cur_data_json = json.loads(EXAMPLE_DATA_JSON)
 
-        # self.worker_thread = threading.Thread(target=self.start_websocket, daemon=True)
-        # self.worker_thread.start()
+        self.worker_thread = threading.Thread(target=self.start_websocket, daemon=True)
+        self.worker_thread.start()
         
         self.main_loop()
 
@@ -123,7 +118,9 @@ class LoggerApp:
         except Exception as e:
             self.info_bar.config(fg="red", text=repr(e))
 
-        self.specified_json.set(json.dumps(json_to_be_displayed, indent=4))
+        self.canvas.delete("all") # rerender the new text
+        self.canvas.create_text(10,0,text=json.dumps(json_to_be_displayed, indent=4), anchor="nw", width=700)
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         self.master.after(1000, self.main_loop)
 
 
@@ -135,7 +132,6 @@ class LoggerApp:
         uri = f"ws://{WEBSOCKET_ADDRESS}"
         print("Connecting to: ", uri)
         async with websockets.connect(uri) as websocket:
-            # while self.is_logging:
             while True:
                 data = await websocket.recv()
                 json_data = json.loads(data)
