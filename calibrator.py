@@ -2,7 +2,7 @@ import asyncio
 import websockets
 import json
 import time
-from tkinter import Tk, Label, Button, Entry, filedialog, StringVar, Frame, Canvas, Scrollbar
+from tkinter import Tk, Label, Button, Entry, filedialog, StringVar, Frame, Canvas, Scrollbar, Text
 import threading
 
 WEBSOCKET_ADDRESS = "localhost:9002"
@@ -69,8 +69,8 @@ class LoggerApp:
         self.calibrated_input_entry = Entry(left_frame, textvariable=self.calibrated_input_var)
         self.log_button = Button(left_frame,text="Log calibration", command=self.update_shit)
         self.display_var = StringVar(value='')
-        self.display_label = Entry(left_frame, textvariable=self.display_var)
-        self.display_label["state"] = "readonly"
+        self.display_label = Text(left_frame, height=4, width=50)
+        # self.display_label["state"] = "readonly"
 
         self.address_label.grid(row=1, column=0, sticky="N")
         self.address_entry.grid(row=1, column=1, columnspan=2, sticky="N")
@@ -78,17 +78,6 @@ class LoggerApp:
         self.calibrated_input_entry.grid(row=3, column=0)
         self.log_button.grid(row=4, column=0)
         self.display_label.grid(row=5, column=0)
-
-        # make layout a little nicer
-        # self.blankspace = Label(left_frame, text="")
-        # self.blankspace_2 = Label(left_frame, text="")
-        # self.blankspace_3 = Label(left_frame, text="")
-        # self.blankspace_4 = Label(left_frame, text="")
-        # self.blankspace.grid(row=0,column=0,columnspan=3)
-        # self.blankspace_2.grid(row=2,column=0,columnspan=3)
-        # self.blankspace_3.grid(row=6,column=0,columnspan=3)
-        # self.blankspace_4.grid(row=4, column=0, columnspan=3)
-
 
 
 
@@ -114,7 +103,7 @@ class LoggerApp:
 
 
     def update_shit(self):
-        self.display_var.set(f"{self.display_var.get()}\n{self.calibrated_input_entry.get()}, {self.cur_selected_json}")
+        self.display_label.insert("end", f"\n{self.calibrated_input_entry.get()}, {self.cur_selected_json}")
 
 
     def main_loop(self):
