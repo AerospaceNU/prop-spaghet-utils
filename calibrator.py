@@ -1,14 +1,12 @@
-# Jack Hester for AeroNU
 import asyncio
 import websockets
 import json
-import csv
-import os
 import time
-from tkinter import Tk, Label, Button, Entry, filedialog, StringVar
+from tkinter import Tk, Label, Button, Entry, filedialog, StringVar, Frame, Canvas, Scrollbar
 import threading
 
-
+WEBSOCKET_ADDRESS = "localhost:9002"
+# also the first json displayed (good for tesing purposes!)
 EXAMPLE_DATA_JSON = """{
     "command": "DATA",
     "calibrated?": "true",
@@ -54,22 +52,42 @@ EXAMPLE_DATA_JSON = """{
 ERRORLESS_INFO = "Errors will appear here"
 
 class LoggerApp:
-    def __init__(self, master):
-        self.master = master
-        master.title("AeroNU Propulsion Logger")
+    def __init__(self, mastash):
+        self.master = mastash
+        self.master.title("AeroNU Propulsion Logger")
 
-        self.address_label = Label(master, text="Address")
-        self.address_var = StringVar(value='ecs-sim-pi.local:9002')
-        self.address_entry = Entry(master, textvariable=self.address_var)
+        left_frame  = Frame(self.master,  width=200,  height=  400)
+        left_frame.grid(row=0, column=0, sticky="N")
 
+        self.address_label = Label(left_frame, text="Address")
+        self.address_var = StringVar(value='')
+        self.address_entry = Entry(left_frame, textvariable=self.address_var)
+
+        right_frame = Frame(self.master,  width=200,  height= 400)
+        right_frame.grid(row=0, column=1, sticky='news')
+
+        
+        canvas = Canvas(right_frame, bg="gray94", width=200,  height=400)
+        
         self.specified_json = StringVar(value=EXAMPLE_DATA_JSON)
-        self.specified_json_label = Label(master, textvariable=self.specified_json, justify="left")
-        self.info_bar = Label(master, text=ERRORLESS_INFO, fg="black")
+        self.specified_json_label = Label(canvas, textvariable=self.specified_json, justify="left")
+        canvas.create_window(0, 0, anchor='nw', window=self.specified_json_label, height=400)
 
-        self.blankspace = Label(master, text="")
-        self.blankspace_2 = Label(master, text="")
-        self.blankspace_3 = Label(master, text="")
-        self.blankspace_4 = Label(master, text="")
+        scrolly = Scrollbar(right_frame, orient='vertical', command=canvas.yview)
+        scrolly.grid(row=0, column=1, sticky='ns')
+        canvas.configure(scrollregion=canvas.bbox('all'), yscrollcommand=scrolly.set)
+
+        canvas.grid(row=0, column=0)
+
+
+        
+
+        self.info_bar = Label(left_frame, text=ERRORLESS_INFO, fg="black")
+
+        self.blankspace = Label(left_frame, text="")
+        self.blankspace_2 = Label(left_frame, text="")
+        self.blankspace_3 = Label(left_frame, text="")
+        self.blankspace_4 = Label(left_frame, text="")
 
         # make layout a little nicer
         self.blankspace.grid(row=0,column=0,columnspan=3)
@@ -77,13 +95,17 @@ class LoggerApp:
         self.blankspace_3.grid(row=6,column=0,columnspan=3)
         self.blankspace_4.grid(row=4, column=0, columnspan=3)
         self.address_label.grid(row=1, column=0, sticky="N")
-        self.address_entry.grid(row=1, column=1, columnspan=2, sticky="N")
-        self.specified_json_label.grid(row=1, column=3, columnspan=2)
+        # self.address_entry.grid(row=1, column=1, columnspan=2, sticky="N")
+        # self.specified_json_label.grid(row=1, column=3, columnspan=2)
         self.info_bar.grid(row=2, column=0)
 
 
         self.last_gui_update_time = 0
         self.cur_data_json = json.loads(EXAMPLE_DATA_JSON)
+
+        # self.worker_thread = threading.Thread(target=self.start_websocket, daemon=True)
+        # self.worker_thread.start()
+        
         self.main_loop()
 
 
@@ -105,95 +127,31 @@ class LoggerApp:
         self.master.after(1000, self.main_loop)
 
 
-    # def enable_close_button(self):
-    #     self.master.destroy()
-
-    # def start_logging(self):
-    #     if not self.save_directory:
-    #         self.choose_directory()
-
-    #     self.master.protocol("WM_DELETE_WINDOW", self.disable_close_button)
-
-    #     if self.save_directory:
-    #         self.is_logging = True
-    #         self.start_button.config(state='disabled')
-    #         self.stop_button.config(state='normal')
-    #         self.new_file_button.config(state='normal')
-    #         self.address = self.address_var.get()
-    #         self.csv_file, self.csv_writer = self.create_csv_file()
-    #         self.worker_thread = threading.Thread(target=self.start_websocket, daemon=True)
-    #         self.worker_thread.start()
-
-    # def stop_logging(self):
-    #     self.is_logging = False
-        
-    #     self.master.protocol("WM_DELETE_WINDOW", self.enable_close_button)
-
-    #     self.start_button.config(state='normal')
-    #     self.stop_button.config(state='disabled')
-    #     self.new_file_button.config(state='disabled')
-    #     if self.csv_file:
-    #         self.csv_file.close()
-
-    # def new_file(self):
-    #     if self.csv_file:
-    #         self.csv_file.close()
-    #         self.csv_file, self.csv_writer = self.create_csv_file()
-    #         self.header_written = False
-
-    # def choose_directory(self):
-    #     self.save_directory = filedialog.askdirectory()
-
-    # def create_csv_file(self):
-    #     file_name = os.path.join(self.save_directory, f"logger_{time.strftime('%m-%d-%Y_%H-%M-%S', time.localtime( int(time.time()) ))}.csv")
-    #     csv_file = open(file_name, 'w', newline='')
-    #     csv_writer = csv.writer(csv_file)
-    #     return csv_file, csv_writer
-
     def start_websocket(self):
         asyncio.run(self.connect())
 
+
     async def connect(self):
-        uri = f"ws://{self.address}"
+        uri = f"ws://{WEBSOCKET_ADDRESS}"
         print("Connecting to: ", uri)
         async with websockets.connect(uri) as websocket:
-            while self.is_logging:
+            # while self.is_logging:
+            while True:
                 data = await websocket.recv()
                 json_data = json.loads(data)
                 self.process_data(json_data)
 
+
     # This is where we get handle the ECS json reports. You'll want to update this if you start getting interesting info other than the items (e.g., loadcellsensors, aborts, etc.) below
     def process_data(self, json_data):
         if json_data['command'] == 'DATA':
-            data = json_data['data']
-
-            load_cells = {f"{k}_sensorReading": v['sensorReading'] for k, v in data['loadCellSensors'].items()}
-            pressure_sensors = {f"{k}_sensorReading": v['sensorReading'] for k, v in data['pressureSensors'].items()}
-            temp_sensors = {f"{k}_sensorReading": v['sensorReading'] for k, v in data['tempSensors'].items()}
-            valves = {k: v['valveState'] for k, v in data['valves'].items()}
-
-            other_data = {
-                'timestamp': json_data['timeStamp'],
-                # 'currentState': json_data['currentState'],
-                # 'engineSequence': json_data['engineSequence'],
-                # 'sequenceProgress': json_data['sequenceProgress'],
-                # 'recordedAbort': json_data['recordedAbort']
-            }
-
-            row_data = {**load_cells, **pressure_sensors, **temp_sensors, **valves, **other_data}
-
-        if not self.header_written:
-            self.csv_writer.writerow(row_data.keys())
-            self.header_written = True
-
-        self.csv_writer.writerow(row_data.values())
-        self.csv_file.flush()
+            self.cur_data_json = json_data
 
         # only upate the GUI with json report count at 2Hz (time.time is in *seconds* not ms)
-        self.file_count += 1
-        if(time.time() - self.last_gui_update_time > 0.5):
-            self.file_count_label.config(text=f"JSON reports received: {self.file_count}")
-            self.last_gui_update_time = time.time()
+        # self.file_count += 1
+        # if(time.time() - self.last_gui_update_time > 0.5):
+        #     self.file_count_label.config(text=f"JSON reports received: {self.file_count}")
+        #     self.last_gui_update_time = time.time()
 
 
 if __name__ == "__main__":
