@@ -56,41 +56,11 @@ class LoggerApp:
         self.master = mastash
         self.master.title("AeroNU Propulsion Logger")
 
-        # left frame, for user controls
-        left_frame  = Frame(self.master,  width=200,  height=  400)
-        left_frame.grid(row=0, column=0, sticky="N")
+        self.init_json_display_frame(mastash).grid(row=0, column=1, columnspan=2, rowspan=2)
 
-        self.address_label = Label(left_frame, text="JSON index:")
-        self.address_var = StringVar(value='')
-        self.address_entry = Entry(left_frame, textvariable=self.address_var, width=100)
-        self.info_bar = Label(left_frame, text=ERRORLESS_INFO, fg="black")
+        self.init_json_indexing_frame(mastash).grid(row=0, column=0, sticky="N")
 
-        self.calibrated_input_var = StringVar(value='N/A')
-        self.calibrated_input_entry = Entry(left_frame, textvariable=self.calibrated_input_var)
-        self.log_button = Button(left_frame,text="Log calibration", command=self.update_shit)
-        self.display_var = StringVar(value='')
-        self.display_label = Text(left_frame, height=4, width=50)
-        # self.display_label["state"] = "readonly"
-
-        self.address_label.grid(row=1, column=0, sticky="N")
-        self.address_entry.grid(row=1, column=1, columnspan=2, sticky="N")
-        self.info_bar.grid(row=2, column=1)
-        self.calibrated_input_entry.grid(row=3, column=0)
-        self.log_button.grid(row=4, column=0)
-        self.display_label.grid(row=5, column=0)
-
-
-
-        # right frame, for json display
-        right_frame = Frame(mastash,  width=400,  height= 400)
-        right_frame.grid(row=0, column=1, sticky='news')
-
-        self.canvas = Canvas(right_frame, bg="gray94", width=400,  height=700)
-        scrolly = Scrollbar(right_frame, orient='vertical', command=self.canvas.yview)
-        scrolly.grid(row=0, column=1, sticky='ns')
-
-        self.canvas.configure(yscrollcommand=scrolly.set)
-        self.canvas.grid(row=0, column=0)
+        self.init_log_frame(mastash).grid(row=1, column=0)
 
         self.last_gui_update_time = 0
         self.newest_fresh_json_data = json.loads(EXAMPLE_DATA_JSON)
@@ -100,6 +70,53 @@ class LoggerApp:
         self.worker_thread.start()
         
         self.main_loop()
+
+    def init_json_indexing_frame(self, master):
+        # left frame, for user controls
+        left_frame  = Frame(master,  width=200,  height=  400)
+
+        self.address_label = Label(left_frame, text="JSON index:")
+        self.address_var = StringVar(value='')
+        self.address_entry = Entry(left_frame, textvariable=self.address_var, width=100)
+        self.info_bar = Label(left_frame, text=ERRORLESS_INFO, fg="black")
+
+        self.address_label.grid(row=1, column=0, sticky="N")
+        self.address_entry.grid(row=1, column=1, columnspan=2, sticky="N")
+        self.info_bar.grid(row=2, column=1)
+
+        return left_frame
+
+
+    def init_log_frame(self, master):
+        frame = Frame(master,  width=200,  height=  400)
+        self.calibrated_input_var = StringVar(value='N/A')
+        self.calibrated_input_entry = Entry(frame, textvariable=self.calibrated_input_var)
+
+        self.log_button = Button(frame,text="Log calibration", command=self.update_shit)
+
+        self.display_var = StringVar(value='')
+        self.display_label = Text(frame, height=4, width=50)
+        # self.display_label["state"] = "readonly"
+
+        self.calibrated_input_entry.grid(row=0, column=0)
+        self.log_button.grid(row=1, column=0)
+        self.display_label.grid(row=2, column=0)
+
+        return frame
+
+
+    def init_json_display_frame(self, master):
+        # right frame, for json display
+        right_frame = Frame(master,  width=400,  height= 400)
+
+        self.canvas = Canvas(right_frame, bg="gray94", width=400,  height=600)
+        scrolly = Scrollbar(right_frame, orient='vertical', command=self.canvas.yview)
+        scrolly.grid(row=0, column=1, sticky='ns')
+
+        self.canvas.configure(yscrollcommand=scrolly.set)
+        self.canvas.grid(row=0, column=0)
+
+        return right_frame
 
 
     def update_shit(self):
@@ -155,6 +172,6 @@ class LoggerApp:
 
 if __name__ == "__main__":
     root = Tk()
-    root.geometry("1000x700")
+    root.geometry("1100x600")
     app = LoggerApp(root)
     root.mainloop()
