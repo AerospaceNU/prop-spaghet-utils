@@ -4,7 +4,13 @@ import json
 from tkinter import Tk, Label, Button, Entry, StringVar, Frame, Canvas, Scrollbar, Text
 import threading
 
-WEBSOCKET_ADDRESS = "localhost:9002"
+"""
+CHANGE WEBSOCKET ADDRESSES HERE
+"""
+# WEBSOCKET_ADDRESS = "169.254.90.98:9002" # for actual pi runs
+WEBSOCKET_ADDRESS = "localhost:9002" # for ecs_sim runs
+
+
 # also the first json displayed (good for testing purposes!)
 EXAMPLE_DATA_JSON = """{
     "command": "DATA",
