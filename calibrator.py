@@ -99,7 +99,7 @@ class LoggerApp:
     def init_log_frame(self, master):
         frame = Frame(master)
         address_label = Label(frame, text="Actual value:")
-        calibrated_input_var = StringVar(value='N/A') # TODO: necessary var?
+        calibrated_input_var = StringVar(value='N/A') # var needed to call get() on Entry later
         self.calibrated_input_entry = Entry(frame, textvariable=calibrated_input_var)
 
         log_button = Button(frame, text="Log calibration", command=self.update_shit)
@@ -125,14 +125,14 @@ class LoggerApp:
     def init_json_display_frame(self, master):
         frame = Frame(master)
 
-        self.canvas = Canvas(frame, bg="gray94") # TODO: rename canvas var
-        scrolly = Scrollbar(frame, orient='vertical', command=self.canvas.yview)
+        self.json_display_canvas = Canvas(frame, bg="gray94")
+        scrolly = Scrollbar(frame, orient='vertical', command=self.json_display_canvas.yview)
         scrolly.grid(row=0, column=1, sticky="NSEW")
         frame.grid_columnconfigure(1,weight=0)
 
 
-        self.canvas.configure(yscrollcommand=scrolly.set)
-        self.canvas.grid(row=0, column=0, sticky="NSEW")
+        self.json_display_canvas.configure(yscrollcommand=scrolly.set)
+        self.json_display_canvas.grid(row=0, column=0, sticky="NSEW")
         frame.grid_columnconfigure(0,weight=1)
 
         frame.grid_rowconfigure(0, weight=1)
@@ -159,9 +159,9 @@ class LoggerApp:
             self.info_bar.config(fg="red", text=repr(e))
 
         self.cur_selected_json = json.dumps(json_to_be_displayed, indent=4)
-        self.canvas.delete("all") # rerender the new text
-        self.canvas.create_text(10,0,text=self.cur_selected_json, anchor="nw")
-        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        self.json_display_canvas.delete("all") # rerender the new text
+        self.json_display_canvas.create_text(10,0,text=self.cur_selected_json, anchor="nw")
+        self.json_display_canvas.configure(scrollregion=self.json_display_canvas.bbox("all"))
         self.master.after(1000, self.main_loop)
 
 
