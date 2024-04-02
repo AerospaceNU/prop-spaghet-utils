@@ -149,6 +149,10 @@ class LoggerApp:
 
         json_to_be_displayed = self.newest_fresh_json_data # set to default og json if user input doesn't work
         try:
+            # lmao eval
+            # yeah, it's a quick hack, but it's an convenient hack, and i don't
+            # want to make a lexer/parser for the [] expressions for this
+            # quick ass GUI
             json_to_be_displayed = eval(f"self.newest_fresh_json_data{user_str}")
             self.info_bar.config(fg="black", text=ERRORLESS_INFO)
         except SyntaxError as e:
