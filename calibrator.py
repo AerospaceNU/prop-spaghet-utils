@@ -102,7 +102,7 @@ class LoggerApp:
         calibrated_input_var = StringVar(value='N/A') # var needed to call get() on Entry later
         self.calibrated_input_entry = Entry(frame, textvariable=calibrated_input_var)
 
-        log_button = Button(frame, text="Log calibration", command=self.update_shit)
+        log_button = Button(frame, text="Log calibration", command=self.add_calibration_pair)
 
         self.display_label = Text(frame)
         # self.display_label["state"] = "readonly"
@@ -140,7 +140,7 @@ class LoggerApp:
         return frame
 
 
-    def update_shit(self):
+    def add_calibration_pair(self):
         self.display_label.insert("end", f"\n{self.calibrated_input_entry.get()}, {self.cur_selected_json}")
 
 
