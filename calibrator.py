@@ -67,25 +67,25 @@ class LoggerApp:
         self.master.grid_rowconfigure(0,weight=1)
         self.master.grid_rowconfigure(1,weight=1)
 
-        self.last_gui_update_time = 0
+        self.last_gui_update_time = 0 # not usued rn, might be useful later?
         self.newest_fresh_json_data = json.loads(EXAMPLE_DATA_JSON)
         self.cur_selected_json = self.newest_fresh_json_data
 
-        self.worker_thread = threading.Thread(target=self.start_websocket, daemon=True)
-        self.worker_thread.start()
+        worker_thread = threading.Thread(target=self.start_websocket, daemon=True)
+        worker_thread.start()
         
         self.main_loop()
 
     def init_json_indexing_frame(self, master):
         frame  = Frame(master)
 
-        self.address_label = Label(frame, text="JSON index:")
+        address_label = Label(frame, text="JSON index:")
         self.address_var = StringVar(value='')
-        self.address_entry = Entry(frame, textvariable=self.address_var)
+        address_entry = Entry(frame, textvariable=self.address_var)
         self.info_bar = Label(frame, text=ERRORLESS_INFO, fg="black")
 
-        self.address_label.grid(row=0, column=0, sticky="W")
-        self.address_entry.grid(row=0, column=1, sticky="WE")
+        address_label.grid(row=0, column=0, sticky="W")
+        address_entry.grid(row=0, column=1, sticky="WE")
         self.info_bar.grid(row=1, column=0, columnspan=3, sticky="W")
 
         frame.grid_columnconfigure(0,weight=1)
@@ -99,18 +99,17 @@ class LoggerApp:
     def init_log_frame(self, master):
         frame = Frame(master)
         address_label = Label(frame, text="Actual value:")
-        self.calibrated_input_var = StringVar(value='N/A')
-        self.calibrated_input_entry = Entry(frame, textvariable=self.calibrated_input_var)
+        calibrated_input_var = StringVar(value='N/A') # TODO: necessary var?
+        self.calibrated_input_entry = Entry(frame, textvariable=calibrated_input_var)
 
-        self.log_button = Button(frame, text="Log calibration", command=self.update_shit)
+        log_button = Button(frame, text="Log calibration", command=self.update_shit)
 
-        self.display_var = StringVar(value='')
         self.display_label = Text(frame)
         # self.display_label["state"] = "readonly"
 
         address_label.grid(row=0, column=0)
         self.calibrated_input_entry.grid(row=0, column=1)
-        self.log_button.grid(row=0, column=2)
+        log_button.grid(row=0, column=2)
         self.display_label.grid(row=1, column=0, columnspan=3, sticky="NSEW")
 
         frame.grid_columnconfigure(0,weight=1)
@@ -126,7 +125,7 @@ class LoggerApp:
     def init_json_display_frame(self, master):
         frame = Frame(master)
 
-        self.canvas = Canvas(frame, bg="gray94")
+        self.canvas = Canvas(frame, bg="gray94") # TODO: rename canvas var
         scrolly = Scrollbar(frame, orient='vertical', command=self.canvas.yview)
         scrolly.grid(row=0, column=1, sticky="NSEW")
         frame.grid_columnconfigure(1,weight=0)
