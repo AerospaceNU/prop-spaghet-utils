@@ -3,7 +3,8 @@
     "sequences": [
      "NONE",
      "ALL_FLOW",
-     "KERO_FLOW"
+     "KERO_FLOW",
+     "FIRE_3_SECONDS"
     ]
   }
 ]
