@@ -7,8 +7,11 @@ import threading
 """
 CHANGE WEBSOCKET ADDRESSES HERE
 """
-# WEBSOCKET_ADDRESS = "169.254.90.98:9002" # for actual pi runs
-WEBSOCKET_ADDRESS = "localhost:9002" # for ecs_sim runs
+WEBSOCKET_ADDRESS = "169.254.90.98:9002" # for actual pi runs
+# WEBSOCKET_ADDRESS = "169.254.220.131.59092:9002" # for local runs
+# WEBSOCKET_ADDRESS = "127.0.0.1:9002" # for local runs
+# WEBSOCKET_ADDRESS = "localhost:9002" # for ecs_sim runs
+# WEBSOCKET_ADDRESS = "localhost:8000" # for ecs_sim runs
 
 
 # also the first json displayed (good for testing purposes!)
@@ -181,7 +184,7 @@ class LoggerApp:
     async def connect(self):
         uri = f"ws://{WEBSOCKET_ADDRESS}"
         print("Connecting to: ", uri)
-        async with websockets.connect(uri) as websocket:
+        async with websockets.connect(uri, open_timeout=None) as websocket:
             while True:
                 data = await websocket.recv()
                 json_data = json.loads(data)

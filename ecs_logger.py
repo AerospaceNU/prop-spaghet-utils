@@ -20,6 +20,7 @@ class LoggerApp:
 
         self.address_label = Label(master, text="Address")
         self.address_var = StringVar(value='ecs-sim-pi.local:9002')
+        # self.address_var = StringVar(value='localhost:9002') #if you're running the JSON Dummy simulator
         self.address_entry = Entry(master, textvariable=self.address_var)
 
         self.file_count_label = Label(master, text="JSON files received: 0")

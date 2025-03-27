@@ -4,7 +4,8 @@
      "NONE",
      "ALL_FLOW",
      "KERO_FLOW",
-     "FIRE_3_SECONDS"
+     "FIRE_3_SECONDS",
+     "FIRE_5_SECONDS"
     ]
   }
 ]
