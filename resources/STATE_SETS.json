@@ -16,16 +16,16 @@
             "value": "KERO_FILL"
           },
           {
-            "name": "KERO_FILLED",
-            "value": "KERO_FILLED"
+            "name": "KERO_POST_FILL",
+            "value": "KERO_POST_FILL"
           },
           {
             "name": "LOX_FILL",
             "value": "LOX_FILL"
           },
           {
-            "name": "LOX_FILLED",
-            "value": "LOX_FILLED"
+            "name": "LOX__POST_FILL",
+            "value": "LOX_POST_FILL"
           },
           {
             "name": "ALL_READY_TO_PRESSURIZE",
@@ -50,6 +50,42 @@
           {
             "name": "KERO_FLOW_open",
             "value": "KERO_FLOW_open"
+          },
+          {
+            "name": "LOX_TANK_PURGE",
+            "value": "LOX_TANK_PURGE"
+          },
+          {
+            "name": "KERO_TANK_PURGE",
+            "value": "KERO_TANK_PURGE"
+          },
+          {
+            "name": "ALL_TANK_PURGE",
+            "value": "ALL_TANK_PURGE"
+          },
+          {
+            "name": "LOX_FLUTTER_closed",
+            "value": "LOX_FLUTTER_closed"
+          },
+          {
+            "name": "LOX_FLUTTER_open",
+            "value": "LOX_FLUTTER_open"
+          },
+          {
+            "name": "KERO_FLUTTER_closed",
+            "value": "KERO_FLUTTER_closed"
+          },
+          {
+            "name": "KERO_FLUTTER_open",
+            "value": "KERO_FLUTTER_open"
+          },
+          {
+            "name": "KERO_PRESSURIZING",
+            "value": "KERO_PRESSURIZING"
+          },
+          {
+            "name": "LOX_PRESSURIZING",
+            "value": "LOX_PRESSURIZING"
           }
         ]
       }

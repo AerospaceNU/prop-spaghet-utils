@@ -13,7 +13,7 @@ httpd = socketserver.TCPServer(("", port), handler)
 
 print(f"Serving on port {port}")
 
-webbrowser.open_new(f"http://localhost:{port}")
+# webbrowser.open_new(f"http://localhost:{port}")
 print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 print(f"Consider copy pasting the URL over to an INCOGNITO WINDOW (if some changes don't seem to be applied!)")
 print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
