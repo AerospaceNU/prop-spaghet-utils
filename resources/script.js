@@ -3,8 +3,8 @@
 //these are the main things you need to update here at the top
 
 //where the json is coming from (pi or local testing)
-//const socket = new WebSocket('ws://localhost:9002/ws');
-const socket = new WebSocket('ws://169.254.90.98:9002');
+const socket = new WebSocket('ws://localhost:9002/ws');
+// const socket = new WebSocket('ws://169.254.90.98:9002');
 //const socket = new WebSocket('ws://spaghetti-pi.local:9002/ws');
 //const socket = new WebSocket('ws://ecs-pi.local:9002/ws');
 

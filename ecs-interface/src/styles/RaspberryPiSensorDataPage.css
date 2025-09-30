@@ -1,0 +1,120 @@
+/*Nadeem Baba for AeroNU*/
+
+body {
+    background-color: #DD9791;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+.wrapped-container {
+    max-height: 200px;
+    columns: 2;
+    display: inline-block;
+    vertical-align: top;
+    max-width: 100%;
+    column-gap: 40px;
+}
+
+/*#sensorContainer{
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+}*/
+
+.importantBtn {
+    width: 300px;
+    height: 40px;
+    font-size: larger;
+    align-items: center;
+    background-color: lightgreen;
+    margin-left: 10px;
+    margin-right: 10px;
+    border: none;
+}
+
+.cautiousBtn {
+    width: 300px;
+    height: 40px;
+    font-size: larger;
+    align-items: center;
+    background-color: #DCD933;
+    margin-left: 10px;
+    margin-right: 10px;
+    border: none;
+}
+
+.dangerBtn {
+    width: 300px;
+    height: 40px;
+    font-size: larger;
+    align-items: center;
+    background-color: rgb(231, 76, 97);
+    margin-left: 10px;
+    margin-right: 10px;
+    border: none;
+}
+
+.command-panel {
+    background-color: #181F2D;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+}
+
+p {
+    color: white;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-rows: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    padding: 5px;
+}
+
+.grid-container-small {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    padding: 10px;
+}
+
+.grid-item {
+    background-color: #181F2D;
+    padding: 10px;
+}
+
+.grid-item-small {
+    background-color: #181F2D;
+    padding: 10px;
+    margin-right: 1%;
+}
+
+.grid-container-overrides {
+    display: grid;
+    background-color: inherit;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    padding: 15px;
+}
+
+.dropdown {
+    width: 100%;
+    background-color: #181F2D;
+    margin-top: 5px;
+    color: white;
+}
+
+#chart {
+    background-color: black;
+    max-height: 2vh;
+}
+
+.select-with-dropdown{
+    color: white;
+}
+
+/*#pneumaticSysPress{
+    background-color: lightcoral;
+    width: max-content;
+}*/
