@@ -22,13 +22,11 @@ body {
 }*/
 
 .importantBtn {
-    width: 300px;
     height: 40px;
+    min-width: 200px;
     font-size: larger;
     align-items: center;
     background-color: lightgreen;
-    margin-left: 10px;
-    margin-right: 10px;
     border: none;
 }
 
@@ -38,8 +36,8 @@ body {
     font-size: larger;
     align-items: center;
     background-color: #DCD933;
-    margin-left: 10px;
-    margin-right: 10px;
+    /*margin-left: 10px;*/
+    /*margin-right: 10px;*/
     border: none;
 }
 
@@ -49,17 +47,67 @@ body {
     font-size: larger;
     align-items: center;
     background-color: rgb(231, 76, 97);
-    margin-left: 10px;
-    margin-right: 10px;
+    /*margin-left: 10px;*/
+    /*margin-right: 10px;*/
     border: none;
 }
 
 .command-panel {
     background-color: #181F2D;
+    padding: 10px;
     display: flex;
     flex-direction: row;
-    align-items: center;
-    padding: 10px;
+    justify-content: space-between;
+}
+
+/* Wrapper for positioning the custom arrow */
+.select-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* Modern dark select styling */
+.command-panel select {
+    background-color: #242b3a;
+    color: #f0f0f0;
+    border: 1px solid #3a465d;
+    border-radius: 8px;
+    padding: 8px 36px 8px 12px; /* room for arrow */
+    font-size: 14px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover and focus effects */
+.command-panel select:hover {
+    border-color: #4e9eff;
+    background-color: #2c3448;
+}
+
+.command-panel select:focus {
+    outline: none;
+    border-color: #4e9eff;
+    box-shadow: 0 0 0 2px rgba(78, 158, 255, 0.3);
+}
+
+/* Disabled state */
+.command-panel select:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Custom arrow */
+.custom-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    pointer-events: none;
+    font-size: 10px;
 }
 
 p {
@@ -70,13 +118,12 @@ p {
     display: grid;
     grid-template-rows: repeat(2, 1fr);
     grid-template-columns: repeat(2, 1fr);
-    padding: 5px;
 }
 
 .grid-container-small {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    /*border: 1px solid palegoldenrod;*/
 }
 
 .grid-item {
@@ -86,16 +133,13 @@ p {
 
 .grid-item-small {
     background-color: #181F2D;
-    padding: 10px;
-    margin-right: 1%;
 }
 
 .grid-container-overrides {
     display: grid;
-    background-color: inherit;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 10px;
-    padding: 15px;
+    margin-bottom: 10px;
 }
 
 .dropdown {
@@ -110,7 +154,7 @@ p {
     max-height: 2vh;
 }
 
-.select-with-dropdown{
+.select-with-dropdown {
     color: white;
 }
 

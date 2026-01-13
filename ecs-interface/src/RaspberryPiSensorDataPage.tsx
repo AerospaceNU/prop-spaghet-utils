@@ -1,182 +1,144 @@
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import Plot from "react-plotly.js";
+import Plotly from "plotly.js-dist-min";
+import SendCommandPanel from "./components/SendCommandPanel.tsx";
+import NewSequencePanel from "./components/NewSequencePanel.tsx";
+import SetStatesPanel from "./components/SetStatesPanel.tsx";
 import "./styles/RaspberryPiSensorDataPage.css"
-import CommandPanel from "./components/CommandPanel.tsx";
+
+type WebSocketStatus = "Disconnected" | "Connecting" | "Connected" | "Error";
 
 export default function RaspberryPiSensorDataPage() {
-    // -----------------------
-    // STATE MANAGEMENT
-    // -----------------------
-    // const [error, setError] = useState("");
-    const [sequence, setSequence] = useState("");
-    const [sequenceEnabled, setSequenceEnabled] = useState(false);
+    const plotRefs = useRef<Record<string, any>>({});
+    const wsRef = useRef<WebSocket | null>(null);
+    const bufferRef = useRef<Record<string, { timeStamp: number; sensorReading: number }>>({});
+    const [sensorNames, setSensorNames] = useState<string[]>([]);
+    const [status, setStatus] = useState<WebSocketStatus>("Disconnected");
+    const MAX_POINTS = 50;
 
-    const [currentTestStandState, setCurrentTestStandState] = useState("UNKNOWN");
-    const [lastMessage, setLastMessage] = useState("UNKNOWN");
-    const [pneumaticSysPress, setPneumaticSysPress] = useState("NA");
+    useEffect(() => {
+        setStatus("Connecting")
+        const ws = new WebSocket("ws://localhost:9002/ws");
+        wsRef.current = ws;
 
-    const [overrideEnabled, setOverrideEnabled] = useState(false);
-    const [lastSentOverrideAt, setLastSentOverrideAt] = useState("NA");
+        ws.addEventListener("open", () => setStatus("Connected"));
+        ws.addEventListener("close", () => setStatus("Disconnected"));
+        ws.addEventListener("error", () => setStatus("Error"));
 
-    const [checkboxes, setCheckboxes] = useState({
+        ws.onmessage = (event) => {
+            const incoming = JSON.parse(event.data);
+            const parsedData = incoming.data.pressureSensors;
+            // console.log("Received data", incoming);
+
+            Object.entries(parsedData).forEach(([sensorName, sensorObj]: any) => {
+                bufferRef.current[sensorName] = {
+                    timeStamp: sensorObj.timeStamp,
+                    sensorReading: sensorObj.sensorReading,
+                };
+            });
+
+            // Initialize sensor names once
+            if (sensorNames.length === 0) {
+                setSensorNames(Object.keys(parsedData));
+            }
+        };
+
+        const interval = setInterval(() => {
+            const bufferedData = {...bufferRef.current};
+            if (Object.keys(bufferedData).length === 0) return;
+
+            Object.entries(plotRefs.current).forEach(([sensorGroup, plotEl]) => {
+                if (!plotEl) return;
+
+                const xUpdate: any[] = [];
+                const yUpdate: any[] = [];
+                const traceIndices: number[] = [];
+
+                Object.entries(bufferedData).forEach(([sensorName, {timeStamp, sensorReading}]) => {
+                    const traceIndex = sensorNames.indexOf(sensorName);
+                    if (traceIndex === -1) return;
+                    traceIndices.push(traceIndex);
+                    xUpdate.push([timeStamp]);
+                    yUpdate.push([sensorReading]);
+                });
+
+                Plotly.extendTraces(plotEl.el, {x: xUpdate, y: yUpdate}, traceIndices, MAX_POINTS);
+            });
+        }, 300);
+
+
+        return () => {
+            ws.close();
+            clearInterval(interval);
+        };
+    }, [sensorNames]);
+
+    // Initial empty traces
+    const traces = sensorNames.map((sensorName) => ({
+        x: [],
+        y: [],
+        type: "scatter",
+        mode: "lines",
+        name: sensorName,
+    }));
+
+    const [checkboxes] = useState({
         pressureSensors: true,
         loadSensors: true,
         tempSensors: true,
         pressureSensors2: false,
     });
 
-    // -----------------------
-    // EVENT HANDLERS
-    // -----------------------
-
-    const handleForceSetOnlineSafe = () => {
-        setCurrentTestStandState("ONLINE SAFE");
-        console.log("ONLINE SAFE triggered");
-    };
-
-    const handleSendSequenceCommand = () => {
-        if (sequenceEnabled) {
-            console.log("EXECUTE SEQUENCE triggered:", sequence);
-        }
-    };
-
-    const handleSendOverrideCommand = () => {
-        setLastSentOverrideAt(new Date().toLocaleTimeString());
-        console.log("SET STATES override sent");
-    };
-
-    const toggleCheckbox = (name: string) => {
-        console.log(name)
-        // setCheckboxes((prev) => ({
-        //     ...prev,
-        //     [name]: !prev[name],
-        // }));
-    };
-
-    // -----------------------
-    // LIFECYCLE / EFFECTS
-    // -----------------------
-    useEffect(() => {
-        // Example: fetch sensor data from backend or WebSocket
-        // Replace with your Raspberry Pi JSON polling
-        const interval = setInterval(() => {
-            setLastMessage(`Message received at ${new Date().toLocaleTimeString()}`);
-            setPneumaticSysPress(Math.floor(Math.random() * 200) + " PSI");
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    // -----------------------
-    // JSX
-    // -----------------------
     return (
-        <div >
+        <div style={{display: "flex", flexDirection: "column"}}>
 
-            <CommandPanel/>
-
-            <br/>
-
-            <div className="grid-container-small">
-                <div className="grid-item-small">
-                    <div className="box">
-                        <p>Current State: {currentTestStandState}</p>
-                        <p>Last Message: {lastMessage}</p>
-                        <p>Available Pneumatic Pressure: {pneumaticSysPress}</p>
-                        <button className="dangerBtn" onClick={handleForceSetOnlineSafe}>
-                            ONLINE SAFE
-                        </button>
-                        <button
-                            className="cautiousBtn"
-                            onClick={handleSendSequenceCommand}
-                            disabled={!sequenceEnabled}
-                        >
-                            EXECUTE SEQUENCE
-                        </button>
-                    </div>
-                </div>
-                <div className="grid-item-small">
-                    <div className="box">
-                        <div className="wrapped-container">
-                            <div id="sensorContainer" style={{color: "white"}}>
-                                {/* You can render dynamic sensor values here */}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div style={{marginBottom: "10px"}}>
+                <SendCommandPanel status={status} socket={wsRef.current}/>
             </div>
 
-            <br/>
-
-            <div className="box">
-                <div id="override-buttons" className="grid-container-overrides">
-                    {/* You could map override controls here */}
-                </div>
-                <button
-                    className="importantBtn"
-                    onClick={handleSendOverrideCommand}
-                    disabled={!overrideEnabled}
-                >
-                    SET STATES
-                </button>
-                <p>Last Sent override at: {lastSentOverrideAt}</p>
-                <p>
-                    Enable Override:{" "}
-                    <input
-                        type="checkbox"
-                        checked={overrideEnabled}
-                        onChange={(e) => setOverrideEnabled(e.target.checked)}
-                    />
-                </p>
+            <div style={{marginBottom: "10px"}}>
+                <NewSequencePanel/>
             </div>
 
-            <br/>
+            <div style={{marginBottom: "10px"}}>
+                <SetStatesPanel/>
+            </div>
 
             <div className="grid-container">
-                <div className="grid-item">
-                    <div id="chart1"></div>
-                    <p>
-                        Enable/Disable:{" "}
-                        <input
-                            type="checkbox"
-                            checked={checkboxes.pressureSensors}
-                            onChange={() => toggleCheckbox("pressureSensors")}
-                        />
-                    </p>
-                </div>
-                <div className="grid-item">
-                    <div id="chart3"></div>
-                    <p>
-                        Enable/Disable:{" "}
-                        <input
-                            type="checkbox"
-                            checked={checkboxes.loadSensors}
-                            onChange={() => toggleCheckbox("loadSensors")}
-                        />
-                    </p>
-                </div>
-                <div className="grid-item">
-                    <div id="chart2"></div>
-                    <p>
-                        Enable/Disable:{" "}
-                        <input
-                            type="checkbox"
-                            checked={checkboxes.tempSensors}
-                            onChange={() => toggleCheckbox("tempSensors")}
-                        />
-                    </p>
-                </div>
-                <div className="grid-item">
-                    <div id="chart4"></div>
-                    <p>
-                        Enable/Disable:{" "}
-                        <input
-                            type="checkbox"
-                            checked={checkboxes.pressureSensors2}
-                            onChange={() => toggleCheckbox("pressureSensors2")}
-                        />
-                    </p>
-                </div>
+                {Object.keys(checkboxes).map((sensorName: string) => (
+                    <Plot
+                        key={sensorName}
+                        ref={(el) => (plotRefs.current[sensorName] = el)}
+                        data={traces}
+                        layout={{
+                            title: {
+                                text: "Live Sensor Data for " + sensorName,
+                                font: {size: 18, color: "white"},
+                                x: 0.5,
+                                xanchor: "center",
+                            },
+                            paper_bgcolor: "#1e1e2f",
+                            plot_bgcolor: "#2a2a40",
+                            font: {color: "white"},
+                            xaxis: {title: "Time", gridcolor: "#444"},
+                            yaxis: {title: "Sensor Reading (psi)", gridcolor: "#444"},
+                            margin: {t: 60, r: 20, l: 50, b: 80},
+                            legend: {
+                                orientation: "h",
+                                yanchor: "top",
+                                y: -0.2,
+                                xanchor: "center",
+                                x: 0.5,
+                                font: {color: "white"},
+                            },
+                        }}
+                        style={{border: "5px solid black"}}
+                        config={{responsive: true}}
+                    />
+                ))}
+
             </div>
+
         </div>
     );
 }
