@@ -1,0 +1,4 @@
+/* Controls modal width + height */
+.modal-dialog.create-sequence-modal {
+    min-width: 90vw;
+}

@@ -1,0 +1,4 @@
+/* Prevent Bootstrap from shrinking Plotly charts */
+.js-plotly-plot {
+    max-width: none !important;
+}

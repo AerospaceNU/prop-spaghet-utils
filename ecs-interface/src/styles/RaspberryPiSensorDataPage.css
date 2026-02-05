@@ -47,13 +47,11 @@ body {
     font-size: larger;
     align-items: center;
     background-color: rgb(231, 76, 97);
-    /*margin-left: 10px;*/
-    /*margin-right: 10px;*/
     border: none;
 }
 
 .command-panel {
-    background-color: #181F2D;
+    /*background-color: #181F2D;*/
     padding: 10px;
     display: flex;
     flex-direction: row;
