@@ -1,0 +1,114 @@
+.saved-sequences {
+    padding: 0 10px 12px 10px;
+    border-top: 1px solid #2e3a50;
+}
+
+.saved-sequences-title {
+    font-size: 13px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 8px 0 6px 0;
+}
+
+.saved-sequences-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.saved-sequence-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #242b3a;
+    border: 1px solid #3a465d;
+    border-radius: 6px;
+    padding: 6px 10px;
+}
+
+.saved-sequence-name {
+    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    text-decoration: underline;
+    text-decoration-color: #555;
+    text-underline-offset: 3px;
+}
+
+.saved-sequence-name:hover {
+    text-decoration-color: #aaa;
+}
+
+.saved-sequence-steps {
+    font-size: 12px;
+    color: #888;
+}
+
+.saved-sequence-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.seq-execute-btn {
+    background-color: lightgreen;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.seq-execute-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.seq-delete-btn {
+    background-color: rgb(231, 76, 97);
+    border: none;
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 13px;
+    color: white;
+    cursor: pointer;
+}
+
+.rotating-border {
+    position: relative;
+    color: white;
+    font-size: 30px;
+    padding: 16px;
+    background: black;
+}
+
+.rotating-border::before {
+    content: "";
+    position: absolute;
+    inset: -4px; /* space for the animated border */
+    background: linear-gradient(90deg, blue 50%, transparent 50%),
+    linear-gradient(90deg, blue 50%, transparent 50%),
+    linear-gradient(0deg, blue 50%, transparent 50%),
+    linear-gradient(0deg, blue 50%, transparent 50%);
+    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+    background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
+    animation: border-dance 4s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes border-dance {
+    0% {
+        background-position: 0 0, 100% 100%, 0 100%, 100% 0;
+    }
+    100% {
+        background-position: 300px 0, -300px 100%, 0 -300px, 100% 300px;
+    }
+}

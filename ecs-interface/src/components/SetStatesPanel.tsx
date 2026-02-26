@@ -1,47 +1,85 @@
-import {useEffect, useState} from "react";
+import { useState, useEffect } from "react";
+import valveNamesJSON from "../../../resources/VALVE_NAMES.json";
 
-export default function SetStatesPanel() {
+interface SetStatesPanelProps {
+    socket: WebSocket | null;
+    valveStates: Record<string, string>;
+}
 
+const valveNames: string[] = valveNamesJSON[0].valves;
+
+export default function SetStatesPanel({ socket, valveStates }: SetStatesPanelProps) {
     const [lastSentOverrideAt, setLastSentOverrideAt] = useState("NA");
     const [overrideEnabled, setOverrideEnabled] = useState(false);
-    const [states, setStates] = useState(["State1", "State2", "State3", "State4", "State5", "State6", "State7", "State8", "State9", "State10", "State11", "State12", "State13"]);
+    const [selectedStates, setSelectedStates] = useState<Record<string, string>>(
+        () => Object.fromEntries(valveNames.map((v) => [v, "CLOSED"]))
+    );
 
+    // Sync dropdowns from websocket data when override is not active
     useEffect(() => {
-        setStates(["State1", "State2", "State3", "State4", "State5", "State6", "State7", "State8", "State9", "State10", "State11", "State12", "State13"])
-    }, [])
+        if (!overrideEnabled && Object.keys(valveStates).length > 0) {
+            setSelectedStates((prev) => {
+                const updated = { ...prev };
+                for (const v of valveNames) {
+                    if (valveStates[v] !== undefined) {
+                        updated[v] = valveStates[v];
+                    }
+                }
+                return updated;
+            });
+        }
+    }, [valveStates, overrideEnabled]);
 
     const handleSendOverrideCommand = () => {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            console.warn("WebSocket not connected. Unable to send override.");
+            return;
+        }
+
+        const activeElements: Record<string, string> = {};
+        for (const v of valveNames) {
+            activeElements[v] = selectedStates[v] ?? "CLOSED";
+        }
+
+        const payload = {
+            command: "SET_ACTIVE_ELEMENTS",
+            activeElements,
+        };
+
+        socket.send(JSON.stringify(payload));
         setLastSentOverrideAt(new Date().toLocaleTimeString());
-        console.log("SET STATES override sent");
     };
 
     return (
-        <div style={{backgroundColor: "#181F2D"}}>
-            <div style={{display: "flex", flexDirection: "column", padding: "10px"}}>
-                <div id="override-buttons" className="grid-container-overrides">
-                    {states.map((s) => {
-                        return (
-                            <div style={{color: "white", display: "flex", flexDirection: "column"}}>
-                                {s}
-                                <select style={{backgroundColor: "#181F2D", color: "white"}}
-                                        key={s}>
-                                    <option>CLOSED</option>
-                                    <option>OPENED</option>
-                                </select>
-                            </div>
-                        )
-                    })}
+        <div style={{ backgroundColor: "#181F2D" }}>
+            <div style={{ display: "flex", flexDirection: "column", padding: "10px" }}>
+                <div className="grid-container-overrides">
+                    {valveNames.map((v) => (
+                        <div key={v} style={{ color: "white", display: "flex", flexDirection: "column" }}>
+                            {v}
+                            <select
+                                className="dropdown"
+                                value={selectedStates[v] ?? "CLOSED"}
+                                onChange={(e) =>
+                                    setSelectedStates((prev) => ({ ...prev, [v]: e.target.value }))
+                                }
+                                disabled={!overrideEnabled}
+                            >
+                                <option value="OPEN">OPEN</option>
+                                <option value="CLOSED">CLOSED</option>
+                            </select>
+                        </div>
+                    ))}
                 </div>
-                <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
+                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "20px" }}>
                     <button
-                        style={{marginRight: "20px"}}
                         className="importantBtn"
                         onClick={handleSendOverrideCommand}
                         disabled={!overrideEnabled}
                     >
                         SET STATES
                     </button>
-                    <p style={{marginRight: "30px"}}>Last Sent override at: {lastSentOverrideAt}</p>
+                    <p>Last Sent override at: {lastSentOverrideAt}</p>
                     <p>
                         Enable Override:{" "}
                         <input
@@ -53,5 +91,5 @@ export default function SetStatesPanel() {
                 </div>
             </div>
         </div>
-    )
+    );
 }

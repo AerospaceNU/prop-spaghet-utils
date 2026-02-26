@@ -1,149 +1,107 @@
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import CommandEntry from "./CommandEntry.tsx";
-import {useState} from "react";
+import { useState } from "react";
 import stateSetJSON from "../../../resources/STATE_SETS.json";
 import "../styles/CreateSequenceModal.css"
 import "../styles/RaspberryPiSensorDataPage.css"
 
 export interface Command {
-    type?: "SET_STATE" | "OTHER"
-    commandName: string
-    timeUntilExecute?: number
+    type?: "SET_STATE" | "OTHER";
+    commandName: string;
+    timeUntilExecute?: number;
+}
+
+export interface SavedSequence {
+    title: string;
+    commands: Command[];
 }
 
 interface CreateSequenceModalInterface {
     show: boolean;
     setShow: (show: boolean) => void;
-    handleSendStateCommand: (command: string) => void;
-    setIsRunning: (isRunning: boolean) => void;
-    setSecondsLeft: (secondsLeft: number | null) => void;
-    setNextCommand: (nextCommand: Command | null) => void;
-    setCurRunningSequenceTitle: (title: string) => void;
-    curRunningSequenceTitle: string;
-
+    onSave: (seq: SavedSequence) => void;
+    onExecute: (seq: SavedSequence) => void;
+    initialData?: SavedSequence;
 }
 
 export default function CreateSequenceModal({
-                                                show,
-                                                setShow,
-                                                handleSendStateCommand,
-                                                setIsRunning,
-                                                setSecondsLeft,
-                                                setNextCommand,
-                                                setCurRunningSequenceTitle,
-                                                curRunningSequenceTitle
-                                            }: CreateSequenceModalInterface) {
-
-
+    show,
+    setShow,
+    onSave,
+    onExecute,
+    initialData,
+}: CreateSequenceModalInterface) {
+    const [title, setTitle] = useState(initialData?.title ?? "");
     const [testType, setTestType] = useState("");
     const [batch, setBatch] = useState("");
     const [curCommand, setCurCommand] = useState<Command>({
         type: "SET_STATE",
         commandName: "",
-        timeUntilExecute: 0
+        timeUntilExecute: 0,
     });
-    const [commands, setCommands] = useState<Command[]>([]);
+    const [commands, setCommands] = useState<Command[]>(initialData?.commands ?? []);
 
-
-    // Derived data based on selections
     const selectedTestType = stateSetJSON.find((set) => set.name === testType);
     const availableBatches = selectedTestType?.batches ?? [];
     const selectedBatch = availableBatches.find((b) => b.name === batch);
     const availableCommands = selectedBatch?.commands ?? [];
 
-    function countdown(seconds: number) {
-        return new Promise<void>((resolve) => {
-            setSecondsLeft(seconds);
+    const canSubmit = !!title && commands.length > 0;
 
-            const interval = setInterval(() => {
-                setSecondsLeft(prev => {
-                    if (prev === null || prev <= 1) {
-                        clearInterval(interval);
-                        return null;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-
-            setTimeout(() => {
-                clearInterval(interval);
-                setSecondsLeft(null);
-                resolve();
-            }, seconds * 1000);
-        });
-    }
-
-
-    async function handleExecuteCommands() {
+    function handleSave() {
+        onSave({ title, commands });
         setShow(false);
-        setIsRunning(true);
-
-        for (const cmd of commands) {
-            setNextCommand(cmd);
-
-            if (cmd.timeUntilExecute && cmd.timeUntilExecute > 0) {
-                await countdown(cmd.timeUntilExecute);
-            }
-
-            handleSendStateCommand(cmd.commandName);
-        }
-
-        setIsRunning(false);
-        setNextCommand(null);
     }
 
+    function handleExecute() {
+        onSave({ title, commands });
+        onExecute({ title, commands });
+        setShow(false);
+    }
 
     return (
-        <Modal
-            show={show}
-            onHide={() => setShow(false)}
-            dialogClassName="create-sequence-modal"
-        >
+        <Modal show={show} onHide={() => setShow(false)} dialogClassName="create-sequence-modal">
             <Modal.Header closeButton>
                 <Modal.Title>Create Sequence</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
-                <div style={{minHeight: "50vh", maxHeight: "60vh"}}>
-
-                    <div
-                        style={{
-                            position: "sticky",
-                            top: 0,
-                            zIndex: 100,
-                            paddingBottom: "20px",
-                            display: "flex",
-                            flexDirection: "column"
-                        }}
-                    >
-                        <div style={{display: "flex", flexDirection: "row"}}>
+                <div style={{ minHeight: "50vh", maxHeight: "60vh" }}>
+                    <div style={{
+                        position: "sticky",
+                        top: 0,
+                        zIndex: 100,
+                        paddingBottom: "20px",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}>
+                        <div style={{ display: "flex", flexDirection: "row" }}>
                             <div style={{
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                paddingRight: "10px"
-                            }}> Title:
+                                paddingRight: "10px",
+                            }}>
+                                Title:
                             </div>
                             <input
-                                style={{display: "flex", flex: 1, minHeight: "5vh"}}
+                                style={{ display: "flex", flex: 1, minHeight: "5vh" }}
                                 type="text"
-                                value={curRunningSequenceTitle}
+                                value={title}
                                 placeholder="Sequence Title"
-                                onChange={(e) => setCurRunningSequenceTitle(e.target.value)}
+                                onChange={(e) => setTitle(e.target.value)}
                             />
                         </div>
 
-                        <div
-                            style={{
-                                display: "flex",
-                                flex: 1,
-                                justifyContent: "flex-start",
-                                alignItems: "center",
-                                gap: "10px",
-                                marginTop: "10px",
-                            }}
-                        >
+                        <div style={{
+                            display: "flex",
+                            flex: 1,
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginTop: "10px",
+                        }}>
                             {/* Test Type */}
                             <div className="select-wrapper">
                                 <select
@@ -151,14 +109,12 @@ export default function CreateSequenceModal({
                                     onChange={(e) => {
                                         setTestType(e.target.value);
                                         setBatch("");
-                                        setCurCommand({...curCommand, commandName: ""});
+                                        setCurCommand({ ...curCommand, commandName: "" });
                                     }}
                                 >
                                     <option value="">-- Select Test Type --</option>
                                     {stateSetJSON.map((set) => (
-                                        <option key={set.name} value={set.name}>
-                                            {set.name}
-                                        </option>
+                                        <option key={set.name} value={set.name}>{set.name}</option>
                                     ))}
                                 </select>
                                 <span className="custom-arrow">▼</span>
@@ -170,15 +126,13 @@ export default function CreateSequenceModal({
                                     value={batch}
                                     onChange={(e) => {
                                         setBatch(e.target.value);
-                                        setCurCommand({...curCommand, commandName: ""});
+                                        setCurCommand({ ...curCommand, commandName: "" });
                                     }}
                                     disabled={!testType}
                                 >
                                     <option value="">-- Select Batch --</option>
                                     {availableBatches.map((b) => (
-                                        <option key={b.name} value={b.name}>
-                                            {b.name}
-                                        </option>
+                                        <option key={b.name} value={b.name}>{b.name}</option>
                                     ))}
                                 </select>
                                 <span className="custom-arrow">▼</span>
@@ -189,48 +143,35 @@ export default function CreateSequenceModal({
                                 <select
                                     value={curCommand.commandName}
                                     onChange={(e) =>
-                                        setCurCommand({
-                                            ...curCommand,
-                                            type: "SET_STATE",
-                                            commandName: e.target.value,
-                                        })
+                                        setCurCommand({ ...curCommand, type: "SET_STATE", commandName: e.target.value })
                                     }
                                     disabled={!batch}
                                 >
                                     <option value="">-- Select Command --</option>
                                     {availableCommands.map((cmd) => (
-                                        <option key={cmd.value} value={cmd.value}>
-                                            {cmd.name}
-                                        </option>
+                                        <option key={cmd.value} value={cmd.value}>{cmd.name}</option>
                                     ))}
                                 </select>
                                 <span className="custom-arrow">▼</span>
                             </div>
 
-                            {/* Time */}
+                            {/* Delay */}
                             <div className="select-wrapper">
                                 <input
                                     type="number"
                                     min="0"
-                                    placeholder="Time (s)"
+                                    placeholder="Delay (s)"
                                     onChange={(e) =>
-                                        setCurCommand({
-                                            ...curCommand,
-                                            timeUntilExecute: e.target.valueAsNumber,
-                                        })
+                                        setCurCommand({ ...curCommand, timeUntilExecute: e.target.valueAsNumber })
                                     }
                                 />
                             </div>
 
                             <button
                                 onClick={() => setCommands([...commands, curCommand])}
-                                disabled={
-                                    !curCommand.commandName ||
-                                    !curCommand.timeUntilExecute ||
-                                    !curCommand.type
-                                }
+                                disabled={!curCommand.commandName || !curCommand.timeUntilExecute || !curCommand.type}
                             >
-                                Add Command
+                                Add Step
                             </button>
                         </div>
                     </div>
@@ -239,14 +180,10 @@ export default function CreateSequenceModal({
                         overflowY: "auto",
                         border: commands.length === 0 ? "" : "1px solid black",
                         minHeight: "10vh",
-                        maxHeight: "45vh"
+                        maxHeight: "45vh",
                     }}>
                         {commands.map((command, index) => (
-                            <CommandEntry
-                                key={index}
-                                orderIndex={index + 1}
-                                command={command}
-                            />
+                            <CommandEntry key={index} orderIndex={index + 1} command={command} />
                         ))}
                     </div>
                 </div>
@@ -256,15 +193,13 @@ export default function CreateSequenceModal({
                 <Button variant="secondary" onClick={() => setShow(false)}>
                     Close
                 </Button>
-                <Button
-                    variant="primary"
-                    onClick={handleExecuteCommands}
-                    disabled={!curRunningSequenceTitle || commands.length === 0}
-                >
-                    Save Changes and Execute
+                <Button variant="success" onClick={handleSave} disabled={!canSubmit}>
+                    Save
+                </Button>
+                <Button variant="primary" onClick={handleExecute} disabled={!canSubmit}>
+                    Execute
                 </Button>
             </Modal.Footer>
         </Modal>
-
     );
 }

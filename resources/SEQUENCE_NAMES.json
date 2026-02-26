@@ -1,9 +1,8 @@
 [
   {
     "sequences": [
-     "NONE",
-     "ALL_FLOW",
-     "KERO_FLOW"
+      "ALL_FLOW",
+      "KERO_FLOW"
     ]
   }
 ]
