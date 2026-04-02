@@ -1,15 +1,17 @@
 # prop-spaghet-utils
 mini propulsion test stand util code
 
-## Running the html GUI
+## Running the React GUI
 
-1) cd into the directory where you clone/downloaded this code
+1) cd into the `ecs-interface` directory
 
-2) run `python(3) run_gui.py`
+2) install dependencies: `npm install`
 
-(use python or python3 as appropriate for your configuration)
+3) run the dev server: `npm run dev`
 
-3) ensure you are connected to the pi, if you are not or the ecs is not running, you will see an error message about websockets.
+4) open the local URL shown in the terminal (typically `http://localhost:5173`)
+
+5) ensure you are connected to the pi — if you are not or the ecs is not running, you will see an error message about websockets.
 
 ## Running the logger
 
