@@ -26,11 +26,30 @@ type RawSensorObj = {
 
 type RawValveObj = { valveState: string };
 
-const SENSOR_GROUPS = ["pressureSensors", "loadCellSensors", "tempSensors", "pressureSensors2"];
+const SENSOR_GROUPS = ["pressureSensors", "loadCellSensors", "tempSensors", "pressureSensors2", "mdotGraph"];
+
+const GROUP_DISPLAY_NAMES: Record<string, string> = {
+    pressureSensors: "pressureSensors",
+    pressureSensors2: "pressureSensors2",
+    loadCellSensors: "loadCellSensors",
+    tempSensors: "tempSensors",
+    mdotGraph: "Mass Flow — LOX & Kero",
+};
 
 // Multiply raw load cell readings by this factor to convert to lbf.
 // Update this value to match the specific sensor's calibration.
 const LOAD_CELL_LBF_FACTOR = 144;
+
+// Venturi mass flow constants — Cd is user-adjustable via the UI
+const A_lox = 0.00001267;  // LOX venturi throat area (m²)
+const rho_lox = 1141.0;    // LOX density (kg/m³)
+const A_kero = 0.0;        // Kero venturi throat area (m²) — placeholder
+const rho_kero = 820.0;    // Kerosene density (kg/m³)
+
+const MDOT_TRACE_COLORS: Record<string, string> = {
+    loxMdot: "#4488ff",
+    keroMdot: "#ff4444",
+};
 
 export default function RaspberryPiSensorDataPage() {
     /* ------------------ Refs ------------------ */
@@ -41,8 +60,10 @@ export default function RaspberryPiSensorDataPage() {
     const initializedRef = useRef(false);
     const latestRawDataRef = useRef<unknown>(null);
     const lastSensorPanelUpdateRef = useRef(0);
+    const cdRef = useRef(0.95);
 
     /* ------------------ State ------------------ */
+    const [cd, setCd] = useState(0.95);
     const [sensorNames, setSensorNames] = useState<Record<string, string[]>>({});
     const [status, setStatus] = useState<WebSocketStatus>("Disconnected");
     const [lastSentCommand, setLastSentCommand] = useState("UNKNOWN");
@@ -131,6 +152,29 @@ export default function RaspberryPiSensorDataPage() {
                 });
             });
 
+            // Compute LOX and kero mdot and push into the shared mdotGraph buffer
+            if (!bufferRef.current["mdotGraph"]) bufferRef.current["mdotGraph"] = {};
+
+            const lv = bufferRef.current["pressureSensors"]?.["loxVenturi"];
+            const lv2 = bufferRef.current["pressureSensors"]?.["loxVenturi2"];
+            if (lv && lv2) {
+                const deltaP_Pa = Math.abs(lv.sensorReading - lv2.sensorReading) * 6894.76;
+                bufferRef.current["mdotGraph"]["loxMdot"] = {
+                    timeStamp: Math.max(lv.timeStamp, lv2.timeStamp),
+                    sensorReading: cdRef.current * A_lox * Math.sqrt(2 * rho_lox * deltaP_Pa),
+                };
+            }
+
+            const kv = bufferRef.current["pressureSensors"]?.["keroVenturi"];
+            const kv2 = bufferRef.current["pressureSensors"]?.["keroVenturi2"];
+            if (kv && kv2) {
+                const deltaP_Pa = Math.abs(kv.sensorReading - kv2.sensorReading) * 6894.76;
+                bufferRef.current["mdotGraph"]["keroMdot"] = {
+                    timeStamp: Math.max(kv.timeStamp, kv2.timeStamp),
+                    sensorReading: cdRef.current * A_kero * Math.sqrt(2 * rho_kero * deltaP_Pa),
+                };
+            }
+
             // Build flat snapshot of latest sensor readings — throttled to avoid flooding the panel
             const now = Date.now();
             if (now - lastSensorPanelUpdateRef.current >= 2000) {
@@ -143,7 +187,7 @@ export default function RaspberryPiSensorDataPage() {
                             reading: isLoadCell
                                 ? sensorObj.sensorReading * LOAD_CELL_LBF_FACTOR
                                 : sensorObj.sensorReading,
-                            unit: isLoadCell ? "lbf" : (sensorObj.unit ?? "?"),
+                            unit: isLoadCell ? "lbf" : sensorName === "miscTC" ? "K" : (sensorObj.unit ?? "?"),
                         };
                     });
                 });
@@ -158,6 +202,7 @@ export default function RaspberryPiSensorDataPage() {
                     if (groupName === "pressureSensors") {
                         namesPerGroup["pressureSensors"] = Object.keys(groupData);
                         namesPerGroup["pressureSensors2"] = Object.keys(groupData);
+                        namesPerGroup["mdotGraph"] = ["loxMdot", "keroMdot"];
                     } else {
                         namesPerGroup[groupName] = Object.keys(groupData);
                     }
@@ -228,6 +273,7 @@ export default function RaspberryPiSensorDataPage() {
                         type: "scatter" as const,
                         mode: "lines" as const,
                         name,
+                        ...(MDOT_TRACE_COLORS[name] ? {line: {color: MDOT_TRACE_COLORS[name]}} : {}),
                     })),
                 ])
             ),
@@ -241,7 +287,7 @@ export default function RaspberryPiSensorDataPage() {
                     group,
                     {
                         title: {
-                            text: "Live Sensor Data — " + group,
+                            text: "Live Sensor Data — " + (GROUP_DISPLAY_NAMES[group] ?? group),
                             font: {size: 18, color: "white"},
                             x: 0.5,
                             xanchor: "center",
@@ -250,7 +296,7 @@ export default function RaspberryPiSensorDataPage() {
                         plot_bgcolor: "#2a2a40",
                         font: {color: "white"},
                         xaxis: {title: "Time", gridcolor: "#444"},
-                        yaxis: {title: "Sensor Reading", gridcolor: "#444"},
+                        yaxis: {title: group === "mdotGraph" ? "kg/s" : "Sensor Reading", gridcolor: "#444"},
                         margin: {t: 60, r: 20, l: 50, b: 80},
                         legend: {
                             orientation: "h",
@@ -267,6 +313,11 @@ export default function RaspberryPiSensorDataPage() {
     );
 
     const plotConfig = useMemo(() => ({responsive: true}), []);
+
+    const handleCdChange = (value: number) => {
+        cdRef.current = value;
+        setCd(value);
+    };
 
     const handleSendStateCommand = (command: string) => {
         if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
@@ -327,6 +378,8 @@ export default function RaspberryPiSensorDataPage() {
                     lastMessage={lastMessage}
                     sensorValues={latestSensorValues}
                     handleSendStateCommand={handleSendStateCommand}
+                    cd={cd}
+                    onCdChange={handleCdChange}
                 />
             </div>
 
