@@ -81,7 +81,8 @@ export default function RaspberryPiSensorDataPage() {
     useEffect(() => {
         setStatus("Connecting");
 
-        const ws = new WebSocket("ws://localhost:9002/ws");
+        // const ws = new WebSocket("ws://localhost:9002/ws");
+        const ws = new WebSocket("ws://169.254.90.98:9002/ws"); // use this 
         wsRef.current = ws;
 
         ws.addEventListener("open", () => {

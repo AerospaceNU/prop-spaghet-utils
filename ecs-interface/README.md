@@ -71,3 +71,7 @@ export default defineConfig([
   },
 ])
 ```
+
+## Common issues
+If the page keeps failing to connect to the websocket despite everything seeming correct, it is probably a discrepancy with the websocket address. Change the websocket address in `src/pages/RaspberryPiSensorDataPage.tsx`
+Line 84/85, change the const `ws = new WebSocket("ws://<address>:9002/ws");` where `<address>` for sim is: `localhost` and for pi is: `169.254.90.98`
