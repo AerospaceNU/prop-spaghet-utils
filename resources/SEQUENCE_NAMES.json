@@ -1,8 +1,15 @@
 [
   {
     "sequences": [
-      "ALL_FLOW",
-      "KERO_FLOW"
+      "ALL_FLOW_OPEN",
+      "KERO_FLOW",
+      "ALL_FLOW_OPEN_CLOSED_3_SECONDS",
+      "ALL_FLOW_OPEN_CLOSED_5_SECONDS",
+      "FIRE_3_SECONDS",
+      "FIRE_5_SECONDS",
+      "FIRE_8_SECONDS",
+      "KERO_FLUTTER_1_5_SECONDS_SEQUENCE",
+      "LOX_FLUTTER_1_5_SECONDS_SEQUENCE",
     ]
   }
 ]
